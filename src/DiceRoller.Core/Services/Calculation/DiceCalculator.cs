@@ -198,8 +198,39 @@ public class DiceCalculator : IDiceCalculator, IDisposable
         int effectiveThreshold = woundThreshold + Math.Clamp(modifiers.WoundModifier, -1, 1);
         effectiveThreshold = Math.Clamp(effectiveThreshold, 2, 6);
 
-        double woundChance = CalculateRollProbability(effectiveThreshold, modifiers.WoundReroll);
-        double critWoundChance = CalculateCriticalProbability(modifiers.CriticalWoundThreshold, modifiers.WoundReroll);
+        // Apply Twin-Linked (re-roll wound rolls)
+        RerollType effectiveWoundReroll = modifiers.WoundReroll;
+        if (weapon.Abilities.HasFlag(WeaponAbility.TwinLinked))
+        {
+            effectiveWoundReroll = RerollType.RerollFailed;
+        }
+
+        // Apply Anti-X abilities - lower critical wound threshold if weapon type matches target keywords
+        int effectiveCritWoundThreshold = modifiers.CriticalWoundThreshold;
+
+        if (weapon.AntiThreshold > 0)
+        {
+            if (weapon.Abilities.HasFlag(WeaponAbility.AntiInfantry) &&
+                target.Keywords.HasFlag(UnitKeyword.Infantry))
+            {
+                effectiveCritWoundThreshold = Math.Min(effectiveCritWoundThreshold, weapon.AntiThreshold);
+            }
+
+            if (weapon.Abilities.HasFlag(WeaponAbility.AntiVehicle) &&
+                target.Keywords.HasFlag(UnitKeyword.Vehicle))
+            {
+                effectiveCritWoundThreshold = Math.Min(effectiveCritWoundThreshold, weapon.AntiThreshold);
+            }
+
+            if (weapon.Abilities.HasFlag(WeaponAbility.AntiMonster) &&
+                target.Keywords.HasFlag(UnitKeyword.Monster))
+            {
+                effectiveCritWoundThreshold = Math.Min(effectiveCritWoundThreshold, weapon.AntiThreshold);
+            }
+        }
+
+        double woundChance = CalculateRollProbability(effectiveThreshold, effectiveWoundReroll);
+        double critWoundChance = CalculateCriticalProbability(effectiveCritWoundThreshold, effectiveWoundReroll);
 
         double normalWounds = hitsToRoll * (woundChance - critWoundChance);
         double criticalWounds = hitsToRoll * critWoundChance;
@@ -369,7 +400,7 @@ public class DiceCalculator : IDiceCalculator, IDisposable
     }
 
     /// <summary>
-    /// Calculates probability of rolling a critical (unmodified 6).
+    /// Calculates probability of rolling a critical (threshold+ on unmodified roll).
     /// </summary>
     private double CalculateCriticalProbability(int threshold, RerollType reroll)
     {
@@ -378,7 +409,7 @@ public class DiceCalculator : IDiceCalculator, IDisposable
         return reroll switch
         {
             RerollType.None => critChance,
-            RerollType.RerollOnes => threshold == 6 ? critChance + (1.0 / 6.0) * critChance : critChance,
+            RerollType.RerollOnes => critChance + (1.0 / 6.0) * critChance,
             RerollType.RerollFailed => 1.0 - Math.Pow(1.0 - critChance, 2),
             RerollType.RerollAll => 1.0 - Math.Pow(1.0 - critChance, 2),
             _ => critChance
@@ -449,13 +480,26 @@ public class DiceCalculator : IDiceCalculator, IDisposable
     /// <summary>
     /// Rolls a D6 using cryptographically secure RNG.
     /// REQ-CRYPTO-003: Cryptographically secure random number generation.
+    /// Uses rejection sampling to avoid modulo bias.
     /// </summary>
     private int RollD6()
     {
         byte[] randomBytes = new byte[4];
-        _rng.GetBytes(randomBytes);
-        int randomValue = BitConverter.ToInt32(randomBytes, 0);
-        return (Math.Abs(randomValue) % 6) + 1;
+        // Use rejection sampling to avoid modulo bias
+        // uint.MaxValue % 6 = 1, so we reject values >= (uint.MaxValue - 1)
+        uint maxValue = uint.MaxValue - (uint.MaxValue % 6);
+
+        while (true)
+        {
+            _rng.GetBytes(randomBytes);
+            uint randomValue = BitConverter.ToUInt32(randomBytes, 0);
+
+            if (randomValue < maxValue)
+            {
+                return (int)(randomValue % 6) + 1;
+            }
+            // Retry if value is in biased range (extremely rare)
+        }
     }
 
     /// <summary>
@@ -466,13 +510,13 @@ public class DiceCalculator : IDiceCalculator, IDisposable
         return damageType switch
         {
             DamageType.Fixed => fixedDamage,
-            DamageType.D3 => (RollD6() + 2) / 2, // 1-2=1, 3-4=2, 5-6=3
+            DamageType.D3 => ((RollD6() - 1) / 2) + 1, // Maps 1-2→1, 3-4→2, 5-6→3
             DamageType.D6 => RollD6(),
             DamageType.TwoD6 => RollD6() + RollD6(),
             DamageType.D6Plus1 => RollD6() + 1,
             DamageType.D6Plus2 => RollD6() + 2,
             DamageType.TwoD6Plus3 => RollD6() + RollD6() + 3,
-            DamageType.D3Plus3 => ((RollD6() + 2) / 2) + 3,
+            DamageType.D3Plus3 => (((RollD6() - 1) / 2) + 1) + 3,
             _ => 1
         };
     }
@@ -489,7 +533,9 @@ public class DiceCalculator : IDiceCalculator, IDisposable
             Iterations = simulations.Count,
             Simulations = simulations,
             AverageDamage = damages.Average(),
-            MedianDamage = damages[damages.Count / 2],
+            MedianDamage = damages.Count % 2 == 0
+                ? (damages[damages.Count / 2 - 1] + damages[damages.Count / 2]) / 2.0
+                : damages[damages.Count / 2],
             MinimumDamage = damages.Min(),
             MaximumDamage = damages.Max(),
             PercentageWithKills = simulations.Count(s => s.ModelsKilled > 0) * 100.0 / simulations.Count,

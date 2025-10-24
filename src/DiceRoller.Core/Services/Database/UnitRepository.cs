@@ -220,8 +220,14 @@ public class UnitRepository : IUnitRepository
             Description = reader.IsDBNull(reader.GetOrdinal("Description"))
                 ? null
                 : reader.GetString(reader.GetOrdinal("Description")),
-            CreatedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("CreatedAt"))),
-            ModifiedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("ModifiedAt")))
+            CreatedAt = DateTime.Parse(
+                reader.GetString(reader.GetOrdinal("CreatedAt")),
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.RoundtripKind),
+            ModifiedAt = DateTime.Parse(
+                reader.GetString(reader.GetOrdinal("ModifiedAt")),
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.RoundtripKind)
         };
     }
 }

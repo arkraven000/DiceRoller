@@ -187,14 +187,19 @@ public class KeyManagementService : IKeyManagementService
             throw new SecurityException("Invalid key file path.");
         }
 
-        if (!File.Exists(fullPath))
-        {
-            return null;
-        }
-
+        // Don't check File.Exists - just try to read and handle FileNotFoundException
+        // This prevents TOCTOU (time-of-check-time-of-use) race condition
         try
         {
             return File.ReadAllBytes(fullPath);
+        }
+        catch (FileNotFoundException)
+        {
+            return null;  // Key doesn't exist
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return null;  // Directory doesn't exist
         }
         catch (IOException ex)
         {
@@ -271,19 +276,35 @@ public class KeyManagementService : IKeyManagementService
     /// <summary>
     /// Sanitizes a filename to prevent path traversal attacks.
     /// REQ-INPUT-003: Input sanitization.
+    /// Uses strict whitelist approach to prevent bypasses.
     /// </summary>
     private string SanitizeFileName(string fileName)
     {
-        // Remove invalid characters and path separators
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            throw new ArgumentException("File name cannot be empty.", nameof(fileName));
+        }
+
+        // Step 1: Remove all invalid path characters
         char[] invalidChars = Path.GetInvalidFileNameChars();
         string sanitized = new string(fileName.Where(c => !invalidChars.Contains(c)).ToArray());
 
-        // Remove path traversal attempts
-        sanitized = sanitized.Replace("..", "").Replace(".", "");
+        // Step 2: Remove all dots, slashes, and backslashes completely (prevent all traversal patterns)
+        sanitized = new string(sanitized.Where(c => c != '.' && c != '/' && c != '\\').ToArray());
+
+        // Step 3: Whitelist only safe characters (alphanumeric, underscore, hyphen)
+        sanitized = new string(sanitized.Where(c =>
+            char.IsLetterOrDigit(c) || c == '_' || c == '-').ToArray());
 
         if (string.IsNullOrWhiteSpace(sanitized))
         {
             throw new ArgumentException("Invalid file name after sanitization.", nameof(fileName));
+        }
+
+        // Step 4: Truncate to reasonable length
+        if (sanitized.Length > 200)
+        {
+            sanitized = sanitized.Substring(0, 200);
         }
 
         return sanitized;
