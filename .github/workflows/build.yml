@@ -1,0 +1,60 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for SourceLink
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build --configuration Release --no-restore /p:TreatWarningsAsErrors=true
+
+    - name: Run unit tests
+      run: dotnet test --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage"
+
+    - name: Code coverage check
+      run: |
+        dotnet tool install --global dotnet-coverage
+        dotnet-coverage merge **/*.coverage -o merged.coverage -f cobertura
+
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      if: always()
+      with:
+        files: '**/*.trx'
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: |
+          src/DiceRoller.App/bin/Release/
+          !src/DiceRoller.App/bin/Release/**/*.pdb
+        retention-days: 7
+
+    - name: Build summary
+      if: always()
+      run: |
+        echo "### Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Configuration: Release" >> $GITHUB_STEP_SUMMARY
+        echo "- Target Framework: net8.0-windows10.0.22621.0" >> $GITHUB_STEP_SUMMARY
+        echo "- Warnings as Errors: Enabled" >> $GITHUB_STEP_SUMMARY
+        echo "- Code Analysis: Enabled" >> $GITHUB_STEP_SUMMARY

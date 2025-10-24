@@ -1,0 +1,47 @@
+<Project>
+  <!-- Security and Quality Settings Applied to All Projects -->
+  <PropertyGroup>
+    <!-- Security: Enable all analyzers -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+    <!-- Security: Treat warnings as errors -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Security: Enforce code style in build -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Language: Enable latest features -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Deterministic builds for supply chain security -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Assembly information -->
+    <Authors>DiceRoller Team</Authors>
+    <Company>DiceRoller</Company>
+    <Product>Warhammer 40K Dice Calculator</Product>
+    <Copyright>Copyright © 2025</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/your-org/DiceRoller</RepositoryUrl>
+  </PropertyGroup>
+
+  <!-- Security: NuGet audit settings -->
+  <PropertyGroup>
+    <!-- Enable NuGet vulnerability scanning -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <!-- Fail build on any security vulnerabilities -->
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+  </PropertyGroup>
+
+  <!-- Security: Source Link for debugging and transparency -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>
