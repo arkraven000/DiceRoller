@@ -1,0 +1,104 @@
+name: "CodeQL Advanced Security"
+
+on:
+  push:
+    branches: [ main, develop, 'claude/**' ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run CodeQL analysis every Monday at 3 AM UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'windows-latest' }}
+    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+    permissions:
+      # Required for all workflows
+      security-events: write
+      # Required to fetch internal or private CodeQL packs
+      packages: read
+      # Only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: csharp
+          build-mode: manual
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for better analysis
+
+    - name: Setup .NET
+      if: matrix.language == 'csharp'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        # Enable all security and quality queries
+        queries: +security-and-quality
+        # Configure additional packs if needed
+        # packs: codeql/csharp-queries:AlertSuppression.ql
+
+    # Manual build for C# projects
+    - name: Restore NuGet packages
+      if: matrix.language == 'csharp' && matrix.build-mode == 'manual'
+      run: dotnet restore DiceRoller.sln
+
+    - name: Build solution
+      if: matrix.language == 'csharp' && matrix.build-mode == 'manual'
+      run: |
+        dotnet build DiceRoller.sln `
+          --configuration Release `
+          --no-restore `
+          /p:TreatWarningsAsErrors=true `
+          /p:EnableNETAnalyzers=true `
+          /p:AnalysisLevel=latest-all
+
+    # Perform CodeQL Analysis
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
+        # Upload results even if there are errors
+        upload: true
+        # Add SARIF output for detailed results
+        output: sarif-results
+        # Enable threading for faster analysis
+        threads: 0  # Use all available cores
+
+    # Upload SARIF file as artifact for review
+    - name: Upload SARIF results as artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: codeql-sarif-results
+        path: sarif-results
+        retention-days: 30
+
+    # Generate summary
+    - name: CodeQL Analysis Summary
+      if: always()
+      run: |
+        echo "### CodeQL Security Analysis Completed" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "- **Language:** ${{ matrix.language }}" >> $env:GITHUB_STEP_SUMMARY
+        echo "- **Build Mode:** ${{ matrix.build-mode }}" >> $env:GITHUB_STEP_SUMMARY
+        echo "- **Query Suite:** security-and-quality" >> $env:GITHUB_STEP_SUMMARY
+        echo "- **Analysis Date:** $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')" >> $env:GITHUB_STEP_SUMMARY
+        echo "" >> $env:GITHUB_STEP_SUMMARY
+        echo "Check the Security tab for detailed findings." >> $env:GITHUB_STEP_SUMMARY

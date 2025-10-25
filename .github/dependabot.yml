@@ -1,0 +1,134 @@
+# Dependabot configuration for automated dependency updates
+# Documentation: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # NuGet package updates for .NET projects
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+
+    # Grouping strategy for related updates
+    groups:
+      # Group all Microsoft packages together
+      microsoft-dependencies:
+        patterns:
+          - "Microsoft.*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Group all CommunityToolkit packages together
+      communitytoolkit-dependencies:
+        patterns:
+          - "CommunityToolkit.*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Group all testing packages together
+      testing-dependencies:
+        patterns:
+          - "xunit*"
+          - "FluentAssertions"
+          - "Moq"
+          - "coverlet.*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Group security analyzers
+      security-analyzers:
+        patterns:
+          - "SecurityCodeScan.*"
+          - "Microsoft.CodeAnalysis.*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Labels to apply to pull requests
+    labels:
+      - "dependencies"
+      - "nuget"
+      - "automated"
+
+    # Commit message prefix
+    commit-message:
+      prefix: "build"
+      include: "scope"
+
+    # Assignees for dependency update PRs
+    # assignees:
+    #   - "your-username"
+
+    # Reviewers for dependency update PRs
+    # reviewers:
+    #   - "team-name"
+
+    # Allow Dependabot to update vulnerable dependencies only
+    # Comment out 'schedule' and uncomment below for security-only updates
+    # open-pull-requests-limit: 0
+
+    # Ignore specific dependencies
+    ignore:
+      # Ignore major version updates for stable packages
+      # - dependency-name: "Microsoft.*"
+      #   update-types: ["version-update:semver-major"]
+
+    # Allow both direct and indirect dependencies
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+
+    # Increase version requirements
+    versioning-strategy: increase
+
+  # GitHub Actions workflow updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+    # Group all GitHub Actions updates
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+# Security advisories configuration
+# Dependabot will automatically create security updates for vulnerable dependencies
+# These will be created immediately when a vulnerability is detected, regardless of the schedule
+
+# Best Practices:
+# 1. Review and test all dependency updates before merging
+# 2. Keep dependencies up-to-date to minimize security vulnerabilities
+# 3. Use semantic versioning to understand the impact of updates
+# 4. Enable auto-merge for patch updates only after thorough testing
+# 5. Monitor security advisories in the Security tab
+
+# Additional Configuration Options:
+# - target-branch: Specify a custom target branch for PRs
+# - milestone: Add updates to a specific milestone
+# - rebase-strategy: Configure how Dependabot rebases PRs
+# - insecure-external-code-execution: Control code execution during updates

@@ -1,0 +1,58 @@
+# CodeQL Configuration File
+# This file customizes CodeQL analysis for the DiceRoller project
+# Documentation: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning
+
+name: "DiceRoller CodeQL Configuration"
+
+# Disable default queries and use custom query suites
+disable-default-queries: false
+
+# Query suites to run
+queries:
+  # Security queries - detect security vulnerabilities
+  - uses: security-extended
+  # Quality queries - detect code quality issues
+  - uses: security-and-quality
+
+# Paths to ignore during analysis
+paths-ignore:
+  - '**/obj/**'
+  - '**/bin/**'
+  - '**/*.Designer.cs'
+  - '**/AssemblyInfo.cs'
+  - '**/GlobalUsings.g.cs'
+  - '**/*.g.cs'
+  - '**/*.g.i.cs'
+  - '**/Migrations/**'
+  - '**/wwwroot/lib/**'
+  - '**/node_modules/**'
+  - '**/.vs/**'
+  - '**/.vscode/**'
+
+# Paths to include (override ignore rules if needed)
+paths:
+  - 'src/**/*.cs'
+  - 'src/**/*.xaml.cs'
+
+# Query filters - customize which queries to run
+query-filters:
+  # Exclude specific queries by ID if needed
+  # - exclude:
+  #     id: cs/weak-crypto
+
+  # Include additional experimental queries
+  # - include:
+  #     kind: problem
+  #     precision: high
+
+# Experimental features
+# packs:
+  # Include additional query packs
+  # - codeql/csharp-queries
+
+# Performance tuning
+# Increase RAM available for analysis (in MB)
+# ram: 4096
+
+# Number of threads for analysis (0 = auto-detect)
+# threads: 0
