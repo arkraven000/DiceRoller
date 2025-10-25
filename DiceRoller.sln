@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceRoller.Core", "src\Dice
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceRoller.Core.Tests", "src\DiceRoller.Core.Tests\DiceRoller.Core.Tests.csproj", "{C3D4E5F6-7890-A1B2-C3D4-E5F678901234}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceRoller.App.Tests", "src\DiceRoller.App.Tests\DiceRoller.App.Tests.csproj", "{D4E5F678-90A1-B2C3-D4E5-F67890123456}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -27,6 +29,10 @@ Global
 		{C3D4E5F6-7890-A1B2-C3D4-E5F678901234}.Debug|x64.Build.0 = Debug|x64
 		{C3D4E5F6-7890-A1B2-C3D4-E5F678901234}.Release|x64.ActiveCfg = Release|x64
 		{C3D4E5F6-7890-A1B2-C3D4-E5F678901234}.Release|x64.Build.0 = Release|x64
+		{D4E5F678-90A1-B2C3-D4E5-F67890123456}.Debug|x64.ActiveCfg = Debug|x64
+		{D4E5F678-90A1-B2C3-D4E5-F67890123456}.Debug|x64.Build.0 = Debug|x64
+		{D4E5F678-90A1-B2C3-D4E5-F67890123456}.Release|x64.ActiveCfg = Release|x64
+		{D4E5F678-90A1-B2C3-D4E5-F67890123456}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

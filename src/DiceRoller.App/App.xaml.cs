@@ -101,7 +101,7 @@ public partial class App : Application
     /// REQ-DATA-002: Key management via DPAPI.
     /// REQ-DATA-003: Database in user AppData directory.
     /// </summary>
-    private async Task InitializeDatabaseAsync()
+    private Task InitializeDatabaseAsync()
     {
         var keyService = _serviceProvider!.GetRequiredService<IKeyManagementService>();
         var dbService = _serviceProvider.GetRequiredService<IDatabaseService>();
@@ -109,14 +109,23 @@ public partial class App : Application
         // Get or create encryption key
         // REQ-DATA-002: DPAPI-protected key from KeyManagementService
         const string keyName = "DiceRollerDatabase";
-        byte[]? encryptionKey = await keyService.RetrieveKeyAsync(keyName);
+        byte[]? protectedKey = keyService.RetrieveProtectedKey(keyName);
+        byte[] encryptionKey;
 
-        if (encryptionKey == null)
+        if (protectedKey == null)
         {
             // First run - generate and store new key
             // REQ-CRYPTO-001: 256-bit AES key generation
             encryptionKey = keyService.GenerateKey();
-            await keyService.StoreKeyAsync(keyName, encryptionKey);
+
+            // Protect key with DPAPI before storing
+            byte[] protectedNewKey = keyService.ProtectKey(encryptionKey);
+            keyService.StoreProtectedKey(protectedNewKey, keyName);
+        }
+        else
+        {
+            // Unprotect retrieved key using DPAPI
+            encryptionKey = keyService.UnprotectKey(protectedKey);
         }
 
         // REQ-DATA-003: Database path in user's AppData
@@ -136,6 +145,8 @@ public partial class App : Application
         // Clear key from memory
         // REQ-MEM-002: Sensitive data cleared after use
         Array.Clear(encryptionKey, 0, encryptionKey.Length);
+
+        return Task.CompletedTask;
     }
 
     /// <summary>

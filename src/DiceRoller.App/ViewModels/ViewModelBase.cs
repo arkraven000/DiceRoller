@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 
 namespace DiceRoller.App.ViewModels;
 
@@ -31,10 +32,22 @@ public abstract class ViewModelBase : ObservableObject
 
     /// <summary>
     /// Called when the ViewModel is activated (navigated to).
+    /// Synchronous wrapper that calls the async version.
     /// </summary>
     public virtual void OnNavigatedTo()
     {
+        // Call async version without waiting
+        _ = OnNavigatedToAsync();
+    }
+
+    /// <summary>
+    /// Called when the ViewModel is activated (navigated to).
+    /// Async version for derived classes that need to perform async operations.
+    /// </summary>
+    public virtual Task OnNavigatedToAsync()
+    {
         // Override in derived classes
+        return Task.CompletedTask;
     }
 
     /// <summary>
