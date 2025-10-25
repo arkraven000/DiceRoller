@@ -1,0 +1,592 @@
+<Page
+    x:Class="DiceRoller.App.Views.CalculatorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Padding="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER: Battle Report Generator -->
+            <Border
+                Grid.Row="0"
+                Style="{StaticResource GrimdarkCardStyle}"
+                BorderBrush="{StaticResource WarhammerGoldBrush}"
+                BorderThickness="0,0,0,2"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock
+                        Text="⚔ COMBAT ANALYSIS COGITATOR ⚔"
+                        Style="{StaticResource GothicHeaderStyle}"
+                        HorizontalAlignment="Center"
+                        FontSize="32"
+                        Foreground="{StaticResource WarhammerGoldBrush}"/>
+                    <TextBlock
+                        Text="By the Emperor's will, calculate the odds of war"
+                        Style="{StaticResource BodyTextStyle}"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource SkullGrayBrush}"
+                        Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- MAIN CONTENT GRID -->
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- INPUT PANELS -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- WEAPON PROFILE PANEL -->
+                    <Border
+                        Grid.Column="0"
+                        Style="{StaticResource GrimdarkCardStyle}"
+                        BorderBrush="{StaticResource BloodRedBrush}">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="⚔ WEAPON PROFILE ⚔"
+                                Style="{StaticResource SubheaderStyle}"/>
+
+                            <TextBox
+                                x:Name="WeaponNameTextBox"
+                                Header="Weapon Name"
+                                PlaceholderText="e.g., Bolter"
+                                Style="{StaticResource GrimdarkTextBoxStyle}"
+                                Text="{x:Bind ViewModel.Weapon.Name, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="AttacksNumberBox"
+                                Header="Attacks (A)"
+                                PlaceholderText="1-1000"
+                                Minimum="1"
+                                Maximum="1000"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Weapon.Attacks, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="BallisticSkillNumberBox"
+                                Header="Ballistic Skill (BS)"
+                                PlaceholderText="2+ to 6+"
+                                Minimum="2"
+                                Maximum="6"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Weapon.BallisticSkill, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="StrengthNumberBox"
+                                Header="Strength (S)"
+                                PlaceholderText="1-20"
+                                Minimum="1"
+                                Maximum="20"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Weapon.Strength, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="ArmorPenetrationNumberBox"
+                                Header="Armor Penetration (AP)"
+                                PlaceholderText="0 to -6"
+                                Minimum="-6"
+                                Maximum="0"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Weapon.ArmorPenetration, Mode=TwoWay}"/>
+
+                            <ComboBox
+                                x:Name="DamageTypeComboBox"
+                                Header="Damage Type"
+                                Style="{StaticResource GrimdarkComboBoxStyle}"
+                                HorizontalAlignment="Stretch"
+                                SelectedIndex="0">
+                                <ComboBoxItem Content="Fixed (e.g., 1, 2, 3)"/>
+                                <ComboBoxItem Content="D3 (1d3)"/>
+                                <ComboBoxItem Content="D6 (1d6)"/>
+                                <ComboBoxItem Content="2D6 (2d6)"/>
+                                <ComboBoxItem Content="D6+1"/>
+                                <ComboBoxItem Content="D6+2"/>
+                            </ComboBox>
+
+                            <NumberBox
+                                x:Name="FixedDamageNumberBox"
+                                Header="Fixed Damage Value"
+                                PlaceholderText="For fixed damage"
+                                Minimum="1"
+                                Maximum="20"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Weapon.FixedDamage, Mode=TwoWay}"
+                                Visibility="{x:Bind DamageTypeComboBox.SelectedIndex, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <!-- WEAPON ABILITIES -->
+                            <TextBlock
+                                Text="Weapon Abilities"
+                                Style="{StaticResource BodyTextStyle}"
+                                FontWeight="SemiBold"
+                                Margin="0,8,0,4"/>
+
+                            <CheckBox
+                                Content="[LETHAL HITS] - Critical hits automatically wound"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[SUSTAINED HITS X] - Critical hits generate extra hits"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[DEVASTATING WOUNDS] - Critical wounds bypass saves"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[TORRENT] - Automatically hit (no BS roll)"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[TWIN-LINKED] - Re-roll failed wound rolls"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[MELTA X] - Bonus damage at half range"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[ANTI-INFANTRY X+] - Critical wound on X+ vs Infantry"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[ANTI-VEHICLE X+] - Critical wound on X+ vs Vehicle"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                Content="[ANTI-MONSTER X+] - Critical wound on X+ vs Monster"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <NumberBox
+                                x:Name="AntiThresholdNumberBox"
+                                Header="Anti-X Threshold"
+                                PlaceholderText="e.g., 4 for 4+"
+                                Minimum="2"
+                                Maximum="6"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Weapon.AntiThreshold, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- TARGET UNIT PROFILE PANEL -->
+                    <Border
+                        Grid.Column="1"
+                        Style="{StaticResource GrimdarkCardStyle}"
+                        BorderBrush="{StaticResource PlasmaB​lueBrush}">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="🛡 TARGET PROFILE 🛡"
+                                Style="{StaticResource SubheaderStyle}"/>
+
+                            <TextBox
+                                x:Name="UnitNameTextBox"
+                                Header="Unit Name"
+                                PlaceholderText="e.g., Space Marines"
+                                Style="{StaticResource GrimdarkTextBoxStyle}"
+                                Text="{x:Bind ViewModel.Target.Name, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="ToughnessNumberBox"
+                                Header="Toughness (T)"
+                                PlaceholderText="1-12"
+                                Minimum="1"
+                                Maximum="12"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Target.Toughness, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="SaveNumberBox"
+                                Header="Save (Sv)"
+                                PlaceholderText="2+ to 7+"
+                                Minimum="2"
+                                Maximum="7"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Target.Save, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="InvulnerableSaveNumberBox"
+                                Header="Invulnerable Save"
+                                PlaceholderText="0 (none) or 2-6"
+                                Minimum="0"
+                                Maximum="6"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Target.InvulnerableSave, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="FeelNoPainNumberBox"
+                                Header="Feel No Pain"
+                                PlaceholderText="0 (none) or 2-6"
+                                Minimum="0"
+                                Maximum="6"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Target.FeelNoPain, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="WoundsPerModelNumberBox"
+                                Header="Wounds per Model (W)"
+                                PlaceholderText="1-24"
+                                Minimum="1"
+                                Maximum="24"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Target.WoundsPerModel, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="ModelCountNumberBox"
+                                Header="Model Count"
+                                PlaceholderText="1-50"
+                                Minimum="1"
+                                Maximum="50"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Target.ModelCount, Mode=TwoWay}"/>
+
+                            <!-- UNIT KEYWORDS -->
+                            <TextBlock
+                                Text="Unit Keywords"
+                                Style="{StaticResource BodyTextStyle}"
+                                FontWeight="SemiBold"
+                                Margin="0,8,0,4"/>
+
+                            <CheckBox
+                                x:Name="InfantryCheckBox"
+                                Content="INFANTRY"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                x:Name="VehicleCheckBox"
+                                Content="VEHICLE"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                x:Name="MonsterCheckBox"
+                                Content="MONSTER"
+                                Foreground="{StaticResource BoneWhiteBrush}"/>
+
+                            <CheckBox
+                                x:Name="InCoverCheckBox"
+                                Content="In Cover (+1 to Save)"
+                                Foreground="{StaticResource BoneWhiteBrush}"
+                                IsChecked="{x:Bind ViewModel.Target.InCover, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- MODIFIERS & ACTIONS PANEL -->
+                    <Border
+                        Grid.Column="2"
+                        Style="{StaticResource GrimdarkCardStyle}"
+                        BorderBrush="{StaticResource WarhammerGoldBrush}">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="⚙ MODIFIERS & ACTIONS ⚙"
+                                Style="{StaticResource SubheaderStyle}"/>
+
+                            <!-- MODIFIERS -->
+                            <TextBlock
+                                Text="Combat Modifiers"
+                                Style="{StaticResource BodyTextStyle}"
+                                FontWeight="SemiBold"/>
+
+                            <NumberBox
+                                x:Name="HitModifierNumberBox"
+                                Header="Hit Modifier"
+                                PlaceholderText="-1, 0, +1"
+                                Minimum="-1"
+                                Maximum="1"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Modifiers.HitModifier, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="WoundModifierNumberBox"
+                                Header="Wound Modifier"
+                                PlaceholderText="-1, 0, +1"
+                                Minimum="-1"
+                                Maximum="1"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Modifiers.WoundModifier, Mode=TwoWay}"/>
+
+                            <NumberBox
+                                x:Name="SaveModifierNumberBox"
+                                Header="Save Modifier"
+                                PlaceholderText="-1, 0, +1"
+                                Minimum="-1"
+                                Maximum="1"
+                                SpinButtonPlacementMode="Inline"
+                                Style="{StaticResource GrimdarkNumberBoxStyle}"
+                                Value="{x:Bind ViewModel.Modifiers.SaveModifier, Mode=TwoWay}"/>
+
+                            <ComboBox
+                                x:Name="HitRerollComboBox"
+                                Header="Hit Re-roll"
+                                Style="{StaticResource GrimdarkComboBoxStyle}"
+                                HorizontalAlignment="Stretch"
+                                SelectedIndex="0">
+                                <ComboBoxItem Content="None"/>
+                                <ComboBoxItem Content="Re-roll 1s"/>
+                                <ComboBoxItem Content="Re-roll Failed"/>
+                                <ComboBoxItem Content="Re-roll All"/>
+                            </ComboBox>
+
+                            <ComboBox
+                                x:Name="WoundRerollComboBox"
+                                Header="Wound Re-roll"
+                                Style="{StaticResource GrimdarkComboBoxStyle}"
+                                HorizontalAlignment="Stretch"
+                                SelectedIndex="0">
+                                <ComboBoxItem Content="None"/>
+                                <ComboBoxItem Content="Re-roll 1s"/>
+                                <ComboBoxItem Content="Re-roll Failed"/>
+                                <ComboBoxItem Content="Re-roll All"/>
+                            </ComboBox>
+
+                            <ComboBox
+                                x:Name="SaveRerollComboBox"
+                                Header="Save Re-roll"
+                                Style="{StaticResource GrimdarkComboBoxStyle}"
+                                HorizontalAlignment="Stretch"
+                                SelectedIndex="0">
+                                <ComboBoxItem Content="None"/>
+                                <ComboBoxItem Content="Re-roll 1s"/>
+                                <ComboBoxItem Content="Re-roll Failed"/>
+                                <ComboBoxItem Content="Re-roll All"/>
+                            </ComboBox>
+
+                            <!-- ACTION BUTTONS -->
+                            <TextBlock
+                                Text="Execute Orders"
+                                Style="{StaticResource BodyTextStyle}"
+                                FontWeight="SemiBold"
+                                Margin="0,16,0,4"/>
+
+                            <Button
+                                x:Name="CalculateButton"
+                                Content="⚔ CALCULATE EXPECTED DAMAGE ⚔"
+                                Style="{StaticResource ImperialButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.CalculateCommand}"/>
+
+                            <Button
+                                x:Name="SimulateButton"
+                                Content="📊 RUN MONTE CARLO SIMULATION"
+                                Style="{StaticResource ImperialButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                Background="{StaticResource PlasmaB​lueBrush}"
+                                Command="{x:Bind ViewModel.RunSimulationCommand}"/>
+
+                            <Button
+                                x:Name="ClearButton"
+                                Content="🗑 CLEAR ALL DATA"
+                                HorizontalAlignment="Stretch"
+                                Background="{StaticResource CeramiteGrayBrush}"
+                                Foreground="{StaticResource SkullGrayBrush}"
+                                Command="{x:Bind ViewModel.ClearCommand}"/>
+
+                            <!-- STATUS MESSAGE -->
+                            <Border
+                                Background="{StaticResource AdamantiumGrayBrush}"
+                                BorderBrush="{StaticResource WarhammerGoldBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="12"
+                                Margin="0,16,0,0"
+                                Visibility="{x:Bind ViewModel.StatusMessage, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}}">
+                                <TextBlock
+                                    Text="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                                    Style="{StaticResource BodyTextStyle}"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource WarhammerGoldBrush}"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- RESULTS PANEL -->
+                <Border
+                    Grid.Row="1"
+                    Style="{StaticResource GrimdarkCardStyle}"
+                    BorderBrush="{StaticResource ImperialCrimsonBrush}"
+                    BorderThickness="2"
+                    Margin="8,16,8,8"
+                    Visibility="{x:Bind ViewModel.Result, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                    <StackPanel Spacing="16">
+                        <TextBlock
+                            Text="📜 BATTLE REPORT 📜"
+                            Style="{StaticResource SubheaderStyle}"
+                            FontSize="24"
+                            HorizontalAlignment="Center"/>
+
+                        <!-- EXPECTED DAMAGE SUMMARY -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Total Damage -->
+                            <Border
+                                Grid.Column="0"
+                                Background="{StaticResource VoidBlackBrush}"
+                                BorderBrush="{StaticResource BloodRedBrush}"
+                                BorderThickness="2"
+                                CornerRadius="4"
+                                Padding="16"
+                                Margin="4">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock
+                                        Text="EXPECTED DAMAGE"
+                                        Style="{StaticResource BodyTextStyle}"
+                                        FontSize="12"
+                                        HorizontalAlignment="Center"
+                                        Foreground="{StaticResource SkullGrayBrush}"/>
+                                    <TextBlock
+                                        Text="{x:Bind ViewModel.Result.ExpectedDamage, Mode=OneWay}"
+                                        Style="{StaticResource GothicHeaderStyle}"
+                                        FontSize="36"
+                                        HorizontalAlignment="Center"
+                                        Foreground="{StaticResource BloodRedBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Models Killed -->
+                            <Border
+                                Grid.Column="1"
+                                Background="{StaticResource VoidBlackBrush}"
+                                BorderBrush="{StaticResource ImperialCrimsonBrush}"
+                                BorderThickness="2"
+                                CornerRadius="4"
+                                Padding="16"
+                                Margin="4">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock
+                                        Text="MODELS SLAIN"
+                                        Style="{StaticResource BodyTextStyle}"
+                                        FontSize="12"
+                                        HorizontalAlignment="Center"
+                                        Foreground="{StaticResource SkullGrayBrush}"/>
+                                    <TextBlock
+                                        Text="{x:Bind ViewModel.Result.ModelsKilled, Mode=OneWay}"
+                                        Style="{StaticResource GothicHeaderStyle}"
+                                        FontSize="36"
+                                        HorizontalAlignment="Center"
+                                        Foreground="{StaticResource ImperialCrimsonBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Kill Probability -->
+                            <Border
+                                Grid.Column="2"
+                                Background="{StaticResource VoidBlackBrush}"
+                                BorderBrush="{StaticResource WarhammerGoldBrush}"
+                                BorderThickness="2"
+                                CornerRadius="4"
+                                Padding="16"
+                                Margin="4">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock
+                                        Text="UNIT DESTRUCTION PROBABILITY"
+                                        Style="{StaticResource BodyTextStyle}"
+                                        FontSize="12"
+                                        HorizontalAlignment="Center"
+                                        Foreground="{StaticResource SkullGrayBrush}"
+                                        TextWrapping="Wrap"/>
+                                    <TextBlock
+                                        Text="{x:Bind ViewModel.Result.ProbabilityOfKill, Mode=OneWay}"
+                                        Style="{StaticResource GothicHeaderStyle}"
+                                        FontSize="36"
+                                        HorizontalAlignment="Center"
+                                        Foreground="{StaticResource WarhammerGoldBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- SIMULATION RESULTS (if available) -->
+                        <Border
+                            Background="{StaticResource AdamantiumGrayBrush}"
+                            BorderBrush="{StaticResource PlasmaB​lueBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="16"
+                            Visibility="{x:Bind ViewModel.Result.SimulationResults, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                            <StackPanel Spacing="8">
+                                <TextBlock
+                                    Text="MONTE CARLO SIMULATION RESULTS"
+                                    Style="{StaticResource SubheaderStyle}"
+                                    FontSize="18"
+                                    HorizontalAlignment="Center"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="8">
+                                        <TextBlock Text="Mean Damage:" Style="{StaticResource BodyTextStyle}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Result.SimulationResults.MeanDamage, Mode=OneWay}"
+                                                   Style="{StaticResource SubheaderStyle}" FontSize="20"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="8">
+                                        <TextBlock Text="Median Damage:" Style="{StaticResource BodyTextStyle}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Result.SimulationResults.MedianDamage, Mode=OneWay}"
+                                                   Style="{StaticResource SubheaderStyle}" FontSize="20"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="8">
+                                        <TextBlock Text="Min Damage:" Style="{StaticResource BodyTextStyle}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Result.SimulationResults.MinDamage, Mode=OneWay}"
+                                                   Style="{StaticResource SubheaderStyle}" FontSize="20"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="3" Margin="8">
+                                        <TextBlock Text="Max Damage:" Style="{StaticResource BodyTextStyle}"/>
+                                        <TextBlock Text="{x:Bind ViewModel.Result.SimulationResults.MaxDamage, Mode=OneWay}"
+                                                   Style="{StaticResource SubheaderStyle}" FontSize="20"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- IMPERIAL QUOTE -->
+                        <TextBlock
+                            Text='"Knowledge is power, guard it well." - Blood Ravens Chapter'
+                            Style="{StaticResource BodyTextStyle}"
+                            FontStyle="Italic"
+                            HorizontalAlignment="Center"
+                            Foreground="{StaticResource SkullGrayBrush}"
+                            Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>

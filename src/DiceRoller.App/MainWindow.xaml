@@ -1,0 +1,149 @@
+<Window
+    x:Class="DiceRoller.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="WARHAMMER 40,000 DICE CALCULATOR - In the grim darkness of the far future, there is only war"
+    MinWidth="1200"
+    MinHeight="800">
+
+    <Grid Background="{StaticResource VoidBlackBrush}">
+        <NavigationView
+            x:Name="NavigationViewControl"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            PaneDisplayMode="Left"
+            Background="{StaticResource HiveGrayBrush}"
+            SelectionChanged="NavigationView_SelectionChanged">
+
+            <NavigationView.MenuItems>
+                <!-- DICE CALCULATOR - Main combat analysis -->
+                <NavigationViewItem
+                    Content="Dice Calculator"
+                    Tag="Calculator"
+                    Icon="Calculator">
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge Value="" Background="{StaticResource BloodRedBrush}"/>
+                    </NavigationViewItem.InfoBadge>
+                </NavigationViewItem>
+
+                <!-- WEAPON LIBRARY - Arsenal of the Imperium -->
+                <NavigationViewItem
+                    Content="Weapon Arsenal"
+                    Tag="WeaponLibrary"
+                    Icon="List">
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge Background="{StaticResource WarhammerGoldBrush}"/>
+                    </NavigationViewItem.InfoBadge>
+                </NavigationViewItem>
+
+                <!-- UNIT LIBRARY - Defenders of Humanity -->
+                <NavigationViewItem
+                    Content="Unit Codex"
+                    Tag="UnitLibrary"
+                    Icon="People">
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge Background="{StaticResource PlasmaB​lueBrush}"/>
+                    </NavigationViewItem.InfoBadge>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <NavigationView.PaneFooter>
+                <StackPanel Orientation="Vertical" Margin="16,8">
+                    <!-- Imperial Aquila Quote -->
+                    <TextBlock
+                        Style="{StaticResource BodyTextStyle}"
+                        Foreground="{StaticResource SkullGrayBrush}"
+                        FontSize="11"
+                        TextWrapping="Wrap"
+                        Margin="0,0,0,8">
+                        "The difference between heresy and treachery is ignorance."
+                    </TextBlock>
+
+                    <!-- Version Info -->
+                    <TextBlock
+                        Foreground="{StaticResource SkullGrayBrush}"
+                        FontSize="10">
+                        <Run Text="Version 1.0.0"/>
+                        <LineBreak/>
+                        <Run Text="Emperor-Sanctioned"/>
+                    </TextBlock>
+                </StackPanel>
+            </NavigationView.PaneFooter>
+
+            <NavigationView.HeaderTemplate>
+                <DataTemplate>
+                    <Grid Margin="24,8,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Imperial Aquila Icon (placeholder) -->
+                        <Viewbox
+                            Grid.Column="0"
+                            Width="48"
+                            Height="48"
+                            Margin="0,0,16,0">
+                            <SymbolIcon
+                                Symbol="Target"
+                                Foreground="{StaticResource WarhammerGoldBrush}"/>
+                        </Viewbox>
+
+                        <!-- Header Text -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock
+                                Text="{Binding}"
+                                Style="{StaticResource GothicHeaderStyle}"
+                                FontSize="24"
+                                Margin="0"/>
+                            <TextBlock
+                                Text="10th Edition Combat Analysis Engine"
+                                Style="{StaticResource BodyTextStyle}"
+                                Foreground="{StaticResource SkullGrayBrush}"
+                                FontSize="12"
+                                Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </NavigationView.HeaderTemplate>
+
+            <Grid>
+                <!-- Main Content Frame -->
+                <Frame
+                    x:Name="ContentFrame"
+                    Background="{StaticResource HiveGrayBrush}"
+                    Padding="24">
+                    <Frame.ContentTransitions>
+                        <TransitionCollection>
+                            <NavigationThemeTransition/>
+                        </TransitionCollection>
+                    </Frame.ContentTransitions>
+                </Frame>
+
+                <!-- Loading Overlay -->
+                <Grid
+                    x:Name="LoadingOverlay"
+                    Background="#CC0A0A0A"
+                    Visibility="Collapsed">
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="16">
+                        <ProgressRing
+                            IsActive="True"
+                            Width="64"
+                            Height="64"
+                            Foreground="{StaticResource BloodRedBrush}"/>
+                        <TextBlock
+                            Text="Processing... The Omnissiah Calculates..."
+                            Style="{StaticResource SubheaderStyle}"
+                            HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </NavigationView>
+    </Grid>
+</Window>
