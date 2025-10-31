@@ -1,38 +1,43 @@
 name: Security Scan
 
 on:
+  # Run on main/develop commits and PRs
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  # Daily security scan at 2 AM UTC
   schedule:
-    # Run security scan daily at 2 AM UTC
     - cron: '0 2 * * *'
+  # Allow manual security scans
+  workflow_dispatch:
+
+# Prevent concurrent security scans
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   security-scan:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+    - name: Setup .NET Environment
+      uses: ./.github/actions/setup-dotnet-environment
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Build solution
-      run: dotnet build --configuration Release --no-restore
-
-    - name: Run tests
-      run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
-
     - name: NuGet vulnerability scan
-      run: dotnet list package --vulnerable --include-transitive
+      run: |
+        echo "### NuGet Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
+        dotnet list package --vulnerable --include-transitive 2>&1 | tee vuln-scan.txt
+        if (Select-String -Path vuln-scan.txt -Pattern "has the following vulnerable packages" -Quiet) {
+          echo "::warning::Vulnerable packages detected"
+          echo "- Status: VULNERABLE PACKAGES FOUND" >> $GITHUB_STEP_SUMMARY
+        } else {
+          echo "- Status: No vulnerabilities detected" >> $GITHUB_STEP_SUMMARY
+        }
+      shell: pwsh
 
     - name: Check for hardcoded secrets
       uses: trufflesecurity/trufflehog@main
@@ -41,15 +46,26 @@ jobs:
         base: ${{ github.event.repository.default_branch }}
         head: HEAD
 
-    - name: Upload coverage reports
+    - name: Download coverage from build
+      uses: actions/download-artifact@v4
+      if: github.event_name != 'schedule'
+      continue-on-error: true
+      with:
+        name: coverage-results
+        path: ./coverage
+
+    - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
+      if: github.event_name != 'schedule'
+      continue-on-error: true
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/coverage.cobertura.xml
+        fail_ci_if_error: false
 
     - name: Security scan summary
       if: always()
       run: |
-        echo "### Security Scan Results" >> $GITHUB_STEP_SUMMARY
-        echo "- NuGet vulnerability scan: Completed" >> $GITHUB_STEP_SUMMARY
+        echo "### Security Scan Complete" >> $GITHUB_STEP_SUMMARY
         echo "- Hardcoded secrets scan: Completed" >> $GITHUB_STEP_SUMMARY
-        echo "- Code coverage: Check Codecov" >> $GITHUB_STEP_SUMMARY
+        echo "- Scan trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
