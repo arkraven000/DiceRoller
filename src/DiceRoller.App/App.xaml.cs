@@ -109,14 +109,20 @@ public partial class App : Application
         // Get or create encryption key
         // REQ-DATA-002: DPAPI-protected key from KeyManagementService
         const string keyName = "DiceRollerDatabase";
-        byte[]? encryptionKey = await keyService.RetrieveKeyAsync(keyName);
+
+        // Retrieve protected key from storage
+        byte[]? protectedKey = keyService.RetrieveProtectedKey(keyName);
+        byte[]? encryptionKey = protectedKey != null ? keyService.UnprotectKey(protectedKey) : null;
 
         if (encryptionKey == null)
         {
             // First run - generate and store new key
             // REQ-CRYPTO-001: 256-bit AES key generation
             encryptionKey = keyService.GenerateKey();
-            await keyService.StoreKeyAsync(keyName, encryptionKey);
+
+            // Protect the key with DPAPI before storing
+            byte[] protectedNewKey = keyService.ProtectKey(encryptionKey);
+            keyService.StoreProtectedKey(protectedNewKey, keyName);
         }
 
         // REQ-DATA-003: Database path in user's AppData

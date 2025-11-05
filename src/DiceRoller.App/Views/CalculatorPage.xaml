@@ -192,7 +192,7 @@
                     <Border
                         Grid.Column="1"
                         Style="{StaticResource GrimdarkCardStyle}"
-                        BorderBrush="{StaticResource PlasmaB​lueBrush}">
+                        BorderBrush="{StaticResource PlasmaBlueBrush}">
                         <StackPanel Spacing="12">
                             <TextBlock
                                 Text="🛡 TARGET PROFILE 🛡"
@@ -396,7 +396,7 @@
                                 Content="📊 RUN MONTE CARLO SIMULATION"
                                 Style="{StaticResource ImperialButtonStyle}"
                                 HorizontalAlignment="Stretch"
-                                Background="{StaticResource PlasmaB​lueBrush}"
+                                Background="{StaticResource PlasmaBlueBrush}"
                                 Command="{x:Bind ViewModel.RunSimulationCommand}"/>
 
                             <Button
@@ -529,7 +529,7 @@
                         <!-- SIMULATION RESULTS (if available) -->
                         <Border
                             Background="{StaticResource AdamantiumGrayBrush}"
-                            BorderBrush="{StaticResource PlasmaB​lueBrush}"
+                            BorderBrush="{StaticResource PlasmaBlueBrush}"
                             BorderThickness="1"
                             CornerRadius="4"
                             Padding="16"

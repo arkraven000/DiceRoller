@@ -43,7 +43,7 @@
             <SolidColorBrush x:Key="BloodRedBrush" Color="{StaticResource BloodRed}"/>
             <SolidColorBrush x:Key="ImperialCrimsonBrush" Color="{StaticResource ImperialCrimson}"/>
             <SolidColorBrush x:Key="WarhammerGoldBrush" Color="{StaticResource WarhammerGold}"/>
-            <SolidColorBrush x:Key="PlasmaB​lueBrush" Color="{StaticResource PlasmaBlue}"/>
+            <SolidColorBrush x:Key="PlasmaBlueBrush" Color="{StaticResource PlasmaBlue}"/>
 
             <SolidColorBrush x:Key="AquilaWhiteBrush" Color="{StaticResource AquilaWhite}"/>
             <SolidColorBrush x:Key="BoneWhiteBrush" Color="{StaticResource BoneWhite}"/>

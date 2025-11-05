@@ -42,6 +42,11 @@ public class AttackModifiers
     public RerollType DamageReroll { get; set; } = RerollType.None;
 
     /// <summary>
+    /// Re-roll type for save rolls.
+    /// </summary>
+    public RerollType SaveReroll { get; set; } = RerollType.None;
+
+    /// <summary>
     /// Whether the attacker is within half range (for Melta, Rapid Fire, etc.).
     /// </summary>
     public bool WithinHalfRange { get; set; }
@@ -124,6 +129,7 @@ public class AttackModifiers
             HitReroll = RerollType.None,
             WoundReroll = RerollType.None,
             DamageReroll = RerollType.None,
+            SaveReroll = RerollType.None,
             WithinHalfRange = false,
             TargetUnitSize = 1,
             CriticalHitThreshold = 6,
