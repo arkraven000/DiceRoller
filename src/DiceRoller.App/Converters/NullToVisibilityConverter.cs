@@ -15,8 +15,13 @@ public class NullToVisibilityConverter : IValueConverter
         return value != null ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    /// <summary>
+    /// ConvertBack is not implemented because converting Visibility back to an object is ambiguous.
+    /// Visibility.Collapsed represents null, but Visibility.Visible could represent any non-null object.
+    /// This converter is intended for one-way binding only.
+    /// </summary>
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ConvertBack is not supported for NullToVisibilityConverter. Use one-way binding only.");
     }
 }

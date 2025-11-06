@@ -141,38 +141,47 @@
                                 Margin="0,8,0,4"/>
 
                             <CheckBox
+                                x:Name="LethalHitsCheckBox"
                                 Content="[LETHAL HITS] - Critical hits automatically wound"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="SustainedHitsCheckBox"
                                 Content="[SUSTAINED HITS X] - Critical hits generate extra hits"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="DevastatingWoundsCheckBox"
                                 Content="[DEVASTATING WOUNDS] - Critical wounds bypass saves"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="TorrentCheckBox"
                                 Content="[TORRENT] - Automatically hit (no BS roll)"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="TwinLinkedCheckBox"
                                 Content="[TWIN-LINKED] - Re-roll failed wound rolls"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="MeltaCheckBox"
                                 Content="[MELTA X] - Bonus damage at half range"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="AntiInfantryCheckBox"
                                 Content="[ANTI-INFANTRY X+] - Critical wound on X+ vs Infantry"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="AntiVehicleCheckBox"
                                 Content="[ANTI-VEHICLE X+] - Critical wound on X+ vs Vehicle"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 
                             <CheckBox
+                                x:Name="AntiMonsterCheckBox"
                                 Content="[ANTI-MONSTER X+] - Critical wound on X+ vs Monster"
                                 Foreground="{StaticResource BoneWhiteBrush}"/>
 

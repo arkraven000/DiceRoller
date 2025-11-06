@@ -8,6 +8,10 @@ namespace DiceRoller.Core.Services.Database;
 /// Implements unit profile data access with parameterized queries.
 /// REQ-INPUT-004: All queries use parameters to prevent SQL injection.
 /// REQ-INPUT-001: All inputs validated before database operations.
+///
+/// NOTE: Currently uses Task.Run to wrap synchronous database operations.
+/// This offloads work from the UI thread but is not truly async.
+/// TODO: Refactor to use async database APIs (ExecuteReaderAsync, etc.) for better performance.
 /// </summary>
 public class UnitRepository : IUnitRepository
 {

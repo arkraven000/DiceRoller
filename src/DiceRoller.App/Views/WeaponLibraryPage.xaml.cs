@@ -11,11 +11,18 @@ namespace DiceRoller.App.Views;
 /// </summary>
 public sealed partial class WeaponLibraryPage : Page
 {
+    /// <summary>
+    /// Gets the ViewModel for this page.
+    /// Note: Initialized in OnNavigatedTo from DI container.
+    /// The null-forgiving operator (null!) is used because x:Bind requires non-nullable properties,
+    /// but initialization happens in the navigation lifecycle method.
+    /// </summary>
     public WeaponLibraryViewModel ViewModel { get; private set; }
 
     public WeaponLibraryPage()
     {
         InitializeComponent();
+        // Using null! because x:Bind requires non-nullable properties
         ViewModel = null!;
     }
 

@@ -31,17 +31,19 @@ public abstract class ViewModelBase : ObservableObject
 
     /// <summary>
     /// Called when the ViewModel is activated (navigated to).
+    /// Override this method in derived classes to perform async initialization.
     /// </summary>
-    public virtual void OnNavigatedTo()
+    public virtual Task OnNavigatedToAsync()
     {
-        // Override in derived classes
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// Called when the ViewModel is deactivated (navigated away from).
+    /// Override this method in derived classes to perform cleanup.
     /// </summary>
-    public virtual void OnNavigatedFrom()
+    public virtual Task OnNavigatedFromAsync()
     {
-        // Override in derived classes
+        return Task.CompletedTask;
     }
 }

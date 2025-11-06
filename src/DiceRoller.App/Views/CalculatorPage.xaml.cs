@@ -14,6 +14,12 @@ namespace DiceRoller.App.Views;
 /// </summary>
 public sealed partial class CalculatorPage : Page
 {
+    /// <summary>
+    /// Gets the ViewModel for this page.
+    /// Note: Initialized in OnNavigatedTo from DI container.
+    /// The null-forgiving operator (null!) is used because x:Bind requires non-nullable properties,
+    /// but initialization happens in the navigation lifecycle method.
+    /// </summary>
     public CalculatorViewModel ViewModel { get; private set; }
 
     public CalculatorPage()
@@ -21,6 +27,7 @@ public sealed partial class CalculatorPage : Page
         InitializeComponent();
 
         // ViewModel will be set in OnNavigatedTo after DI container is available
+        // Using null! because x:Bind requires non-nullable properties
         ViewModel = null!;
     }
 
@@ -75,6 +82,7 @@ public sealed partial class CalculatorPage : Page
         ViewModel.Modifiers.SaveModifier = 0;
         ViewModel.Modifiers.HitReroll = RerollType.None;
         ViewModel.Modifiers.WoundReroll = RerollType.None;
+        ViewModel.Modifiers.DamageReroll = RerollType.None;
         ViewModel.Modifiers.SaveReroll = RerollType.None;
     }
 
@@ -143,7 +151,49 @@ public sealed partial class CalculatorPage : Page
         };
 
         // Weapon Abilities CheckBoxes
-        // Note: Using FindName to get checkboxes by name since we can't use x:Name with x:Bind
-        // Will need to update this based on actual checkbox names in XAML
+        LethalHitsCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.LethalHits;
+        LethalHitsCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.LethalHits;
+
+        SustainedHitsCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.SustainedHits1;
+        SustainedHitsCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~(WeaponAbility.SustainedHits1 | WeaponAbility.SustainedHits2 | WeaponAbility.SustainedHits3);
+
+        DevastatingWoundsCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.DevastatingWounds;
+        DevastatingWoundsCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.DevastatingWounds;
+
+        TorrentCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.Torrent;
+        TorrentCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.Torrent;
+
+        TwinLinkedCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.TwinLinked;
+        TwinLinkedCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.TwinLinked;
+
+        MeltaCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.Melta2;
+        MeltaCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~(WeaponAbility.Melta2 | WeaponAbility.Melta4);
+
+        AntiInfantryCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.AntiInfantry;
+        AntiInfantryCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.AntiInfantry;
+
+        AntiVehicleCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.AntiVehicle;
+        AntiVehicleCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.AntiVehicle;
+
+        AntiMonsterCheckBox.Checked += (s, e) =>
+            ViewModel.Weapon.Abilities |= WeaponAbility.AntiMonster;
+        AntiMonsterCheckBox.Unchecked += (s, e) =>
+            ViewModel.Weapon.Abilities &= ~WeaponAbility.AntiMonster;
     }
 }

@@ -20,8 +20,13 @@ public class StringVisibilityConverter : IValueConverter
         return Visibility.Collapsed;
     }
 
+    /// <summary>
+    /// ConvertBack is not implemented because converting Visibility back to a string is ambiguous.
+    /// Visibility.Collapsed could represent either null, empty string, or whitespace.
+    /// This converter is intended for one-way binding only.
+    /// </summary>
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException("ConvertBack is not supported for StringVisibilityConverter. Use one-way binding only.");
     }
 }

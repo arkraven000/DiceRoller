@@ -7,6 +7,9 @@ namespace DiceRoller.Core.Services.Security;
 /// REQ-DATA-002: DPAPI key management for database encryption keys.
 /// REQ-CRYPTO-001: Uses FIPS-compliant cryptographic algorithms.
 /// REQ-CRYPTO-002: No hardcoded keys.
+///
+/// NOTE: Exception handling uses best-effort approach without logging.
+/// TODO: Add ILogger dependency injection and log exceptions in catch blocks for better diagnostics.
 /// </summary>
 public class KeyManagementService : IKeyManagementService
 {
@@ -232,6 +235,8 @@ public class KeyManagementService : IKeyManagementService
         }
         catch
         {
+            // Return false if path validation fails
+            // TODO: Log exception when logger is available
             return false;
         }
     }
@@ -330,6 +335,7 @@ public class KeyManagementService : IKeyManagementService
         catch
         {
             // Best effort - don't fail if we can't set permissions
+            // TODO: Log exception when logger is available
         }
     }
 
@@ -347,7 +353,8 @@ public class KeyManagementService : IKeyManagementService
         }
         catch
         {
-            // Best effort
+            // Best effort - don't fail if we can't set permissions
+            // TODO: Log exception when logger is available
         }
     }
 
@@ -387,6 +394,7 @@ public class KeyManagementService : IKeyManagementService
         catch
         {
             // If secure delete fails, try normal delete
+            // TODO: Log exception when logger is available
             File.Delete(filePath);
         }
     }

@@ -30,14 +30,16 @@ public interface IKeyManagementService
     byte[] UnprotectKey(byte[] protectedKey);
 
     /// <summary>
-    /// Stores a protected key securely in Windows Credential Manager.
+    /// Stores a protected key securely in file-based storage.
+    /// Keys are stored in %LocalAppData%\DiceRoller\Keys\ directory with restrictive ACLs.
     /// </summary>
     /// <param name="protectedKey">The protected key to store.</param>
     /// <param name="keyName">Name/identifier for the key.</param>
     void StoreProtectedKey(byte[] protectedKey, string keyName);
 
     /// <summary>
-    /// Retrieves a protected key from Windows Credential Manager.
+    /// Retrieves a protected key from file-based storage.
+    /// Keys are retrieved from %LocalAppData%\DiceRoller\Keys\ directory.
     /// </summary>
     /// <param name="keyName">Name/identifier of the key to retrieve.</param>
     /// <returns>The protected key, or null if not found.</returns>
